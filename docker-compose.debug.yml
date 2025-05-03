@@ -1,0 +1,57 @@
+networks:
+  geral:
+    name: geral
+    external: true
+
+services:
+  auth_server:
+    container_name: auth_server
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 7098:7098
+      - 5005:5005
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:7098;http://+:5005
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ~/.aspnet/https:/https:ro
+    depends_on:
+      - auth_db
+    networks:
+      - geral
+
+  auth_db:
+    image: bitnami/postgresql:latest
+    container_name: auth_db
+    volumes:
+     - postgres_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_DATABASE=auth_db
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=F3du9ftZ656V0gH09977526Wuw1dQU
+    ports:
+      - 5432:5432
+    networks:
+      - geral
+
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: pgAdmin4
+    restart: always
+    ports:
+      - 15432:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=paulo@acordemus.com
+      - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    networks:
+      - geral
+
+volumes:
+  postgres_data:
