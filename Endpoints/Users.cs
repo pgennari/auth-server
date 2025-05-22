@@ -66,6 +66,10 @@ namespace auth_server.Endpoints
             {
                 // Handle subscription confirmation (e.g., call snsMessage.SubscribeURL)
                 Console.WriteLine($"Subscription Confirmation: {snsMessage.SubscribeURL}");
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(snsMessage.SubscribeURL);
+                var confirmation = await client.GetAsync(snsMessage.SubscribeURL);
+                Console.WriteLine($"Response Confirmation: {confirmation.Content.ReadAsStringAsync().Result}");
                 // You might want to make an HTTP request to the SubscribeURL here
                 return Results.Ok("Subscription Confirmation received.");
             }
